@@ -1,0 +1,168 @@
+---
+title: "Tutorial 2"
+output: html_notebook
+editor_options: 
+  markdown: 
+    wrap: 72
+---
+
+## 1
+
+### 1A-I
+
+Throwing one on every throw from the 10th throw onward
+
+### 1A-II
+
+Throwing one on any throw after the 5th
+
+### 1A-III
+
+Throwing anything but one on the 4th throw and then throwing one every
+time afterwards.
+
+### 1B
+
+$$
+\left( \bigcup_{i>n} \varepsilon_i \right)
+\;\cap\;
+\left( \bigcap_{i \le n} \varepsilon_i^{c} \right)
+$$
+
+## 2
+
+10 balls, 6 white, 4 red. R = red Probability of red on pick 2 given red
+on pick 1 = $(R_2|R_1)$ After the first pick we have 9 balls, of which 3
+are red. Thus $P(R_2|R_1) = \frac{3}{9}$
+
+## 3
+
+$B_1$ has 8 red, 5 blue, total 13 $B_2$ has 6 red, 4 blue, total 10 We
+roll a fair die, 1 = $B_1$, other = $B_2$
+
+### 3A
+
+$P(R) = P(R|B_1)P(B_1) + P(R|B_2)P(B_2)$\
+$P(B_1) = \frac{1}{6}$\
+$P(B_2) = \frac{5}{6}$\
+$P(R|B_1) = \frac{8}{13}$\
+$P(R|B_2) = \frac{6}{10}$\
+$P(R) = \frac{8}{13}\frac{1}{6} + \frac{6}{10}\frac{5}{6}$
+
+```{r}
+library(MASS)
+p = (8/13*(1/6)) + (6/10*5/6)
+fractions(p)
+```
+
+### 3B
+
+After drawing from a bag we keep drawing from that bag.
+$P(R_1 \& R_2) = (\frac{8}{13})^2 \frac{1}{6} + (\frac{6}{10})^2 \frac{5}{6}$
+
+```{r}
+library(MASS)
+p = ((8/13)^2*(1/6)) + ((6/10)^2*5/6)
+fractions(p)
+```
+
+### 3C
+
+We are drawing with replacement, thus the chances remain the same after
+each draw. Drawing red twice is $2P(R)$ thus $2\frac{47}{78}$
+
+```{r}
+fractions(2*(47/78))
+```
+
+## 4
+### 4A
+```{r}
+sample(x=c("H","T"), size=10, replace=TRUE)
+```
+We got 5 H and 5 T, The ratio of H is $\frac{5}{10} = \frac{1}{2}$
+
+### 4B
+```{r}
+calculate_head_ratio <- function(n) {
+  tosses <- sample(x=c("H","T"), size=n, replace=TRUE)
+  count <- 0
+  for (x in tosses) {
+    if (x == "H") {
+      count <- count +1
+    }
+  }
+  return (count/length(tosses))
+}
+
+```
+
+### 4C
+```{r}
+results <- sapply(1:10000, calculate_head_ratio)
+plot(results, main="Ratio of Heads in a coin toss", xlab="Tosses", ylab="Heads ratio")
+
+```
+
+The plot shows that as the number of throws goes up, the ratio gets closer to 0.5
+
+### 5A
+We will use $B$ for buying and $C$ for customer, and then 1, 2 and 3 for the category.\
+$P(B) = P(B|C_1)+P(B|C_2)+P(B|C_3)$\
+We know that $P(B|C_1)=0.4$, $P(B|C_2)=0.13$, $P(B|C_3)=0.08$, thus $P(B) = 0.4+0.13+0.08=0.61$
+
+### 5B
+$P(C_3) = 0.25$
+Using Bayes' Formula, we know that:\
+$P(C_3|B) = \frac{P(B|C_3)P(C_3)}{P(B)} = \frac{P(0.08)P(0.25)}{P(0.61)}$
+```{r}
+0.08*0.25/0.61
+fractions(0.08*0.25/0.61)
+```
+
+$P(C_3|B) = 0.03278689 = \frac{2}{61}$
+
+### 6A
+The probability the student answers correctly on a question they knew the answer to. In this case 1.
+
+### 6B
+The probability a student knew the question given they answered it correctly. \
+
+### 6C
+$P(R) = \frac{1}{N}+0.7$\
+$P(K|R) > \frac{P(R|K)P(K)}{P(R)}$ \
+$0.99 > \frac{1\times0.7}{\frac{1}{N}+0.7}$\
+$\frac{1}{N} < \frac{0.7}{0.99} - 0.7$\
+$N < 141.4$\
+
+## 7
+### 7A
+They are independent if $P(\epsilon_1\cap\epsilon_2)=P(\epsilon_1)P(\epsilon_2)$.
+We know $P(\epsilon_1\cap\epsilon_2)=0.65$ and $P(\epsilon_1)P(\epsilon_2)=0.5\times0.2=0.1$.
+This means they are not independent.
+
+### 7B
+$P(\epsilon_1\cap\epsilon_2)\geq P(\epsilon_1) + P(\epsilon_2) - 1$\
+$P(\epsilon_1) + P(\epsilon_2) - 1 = 0.8 + 0.4 - 1 = 0.2$\
+The statement is correct.
+
+### 7C
+Events are independent if $P(\epsilon_1\cap\epsilon_2)=P(\epsilon_1)P(\epsilon_2)$.\
+And $P(\epsilon_1\cap\epsilon_2)= P(\epsilon_1) + P(\epsilon_2) - 1$.\
+
+For $\emptyset$:\
+$P(\emptyset\cap\epsilon)= P(\emptyset) + P(\epsilon) - 1$\
+$0 + P(\epsilon) - 1 \leq 0$ this intersection cannot be smaller than 0 in reality, so it will equal 0.\
+$P(\emptyset)P(\epsilon) = 0\times P(\epsilon) = 0$.\
+$P(\emptyset\cap\epsilon)=P(\emptyset)P(\epsilon)$ is satisfied, thus $\emptyset$ is independent from any event.
+
+For $\Omega$:\
+$P(\Omega\cap\epsilon)= P(\Omega) + P(\epsilon) - 1$\
+$1 + P(\epsilon) - 1 = P(\epsilon)$\
+$P(\Omega)P(\epsilon) = 1\times P(\epsilon) = P(\epsilon)$.\
+$P(\Omega\cap\epsilon)=P(\Omega)P(\epsilon)$ is satisfied, thus $\Omega$ is independent from any event.
+
+### 7D
+All three are independent, so $P(\epsilon_1\cap\epsilon_2\cap\epsilon_3) = P(\epsilon_1) P(\epsilon_2) P(\epsilon_3)$.\
+That means we can say that $P((\epsilon_1\cap\epsilon_2)\cap\epsilon_3)=(P(\epsilon_1)P(\epsilon_2))P(\epsilon_3)$.\
+Which means they are independent.
