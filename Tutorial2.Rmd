@@ -1,9 +1,11 @@
 ---
 title: "Tutorial 2"
-output: html_notebook
-editor_options: 
-  markdown: 
-    wrap: 72
+author: Matthias Nijman - S4667999
+output:
+  html_notebook: default
+  html_document:
+    df_print: paged
+  pdf_document: default
 ---
 
 ## 1
@@ -20,6 +22,7 @@ Throwing one on any throw after the 5th
 
 Throwing anything but one on the 4th throw and then throwing one every
 time afterwards.
+<span style="color:red">*Anything but one on the first 4. See the cap not cup.*</span>
 
 ### 1B
 
@@ -33,7 +36,8 @@ $$
 
 10 balls, 6 white, 4 red. R = red Probability of red on pick 2 given red
 on pick 1 = $(R_2|R_1)$ After the first pick we have 9 balls, of which 3
-are red. Thus $P(R_2|R_1) = \frac{3}{9}$
+are red. Thus $P(R_2|R_1) = \frac{3}{9}$.
+<span style="color:red">*It should be $P(R_b|R_1 \cup R_2) = \frac{P(R_b)}{P(R_1) + P(R2) - P(R_b)} =\frac{1}{5}$. Mind that $P(R_b) = P(R_1) \cap P(R_2) = P(R_1) \times P(R_2)$*</span>
 
 ## 3
 
@@ -69,10 +73,11 @@ fractions(p)
 ### 3C
 
 We are drawing with replacement, thus the chances remain the same after
-each draw. Drawing red twice is $2P(R)$ thus $2\frac{47}{78}$
+each draw. Drawing red twice is $P(R)^2$ thus $(\frac{47}{78})^2$
 
 ```{r}
-fractions(2*(47/78))
+fractions((47/78)^2)
+(47/78)^2
 ```
 
 ## 4
@@ -100,7 +105,9 @@ calculate_head_ratio <- function(n) {
 ### 4C
 ```{r}
 results <- sapply(1:10000, calculate_head_ratio)
-plot(results, main="Ratio of Heads in a coin toss", xlab="Tosses", ylab="Heads ratio")
+# Added: type='l' and abline(h=0.5,col='red',lwd=2)
+plot(results, type='l', main="Ratio of Heads in a coin toss", xlab="Tosses", ylab="Heads ratio")
+abline(h=0.5,col='red',lwd=2)
 
 ```
 
@@ -109,7 +116,9 @@ The plot shows that as the number of throws goes up, the ratio gets closer to 0.
 ### 5A
 We will use $B$ for buying and $C$ for customer, and then 1, 2 and 3 for the category.\
 $P(B) = P(B|C_1)+P(B|C_2)+P(B|C_3)$\
-We know that $P(B|C_1)=0.4$, $P(B|C_2)=0.13$, $P(B|C_3)=0.08$, thus $P(B) = 0.4+0.13+0.08=0.61$
+We know that $P(B|C_1)=0.4$, $P(B|C_2)=0.13$, $P(B|C_3)=0.08$, thus $P(B) = 0.4+0.13+0.08=0.61$.
+<span style="color:red">*Law of total prob: $P (ε) = P (ε | C1)P (C1) + P (ε | C2)P (C2) + P (ε | C3)P (C3)$*</span>
+
 
 ### 5B
 $P(C_3) = 0.25$
@@ -134,6 +143,9 @@ $P(K|R) > \frac{P(R|K)P(K)}{P(R)}$ \
 $0.99 > \frac{1\times0.7}{\frac{1}{N}+0.7}$\
 $\frac{1}{N} < \frac{0.7}{0.99} - 0.7$\
 $N < 141.4$\
+
+<span style="color:red">*$\frac{7N}{7N+3}> 0.99$ so N > 43*</span>
+
 
 ## 7
 ### 7A
