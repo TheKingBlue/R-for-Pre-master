@@ -1,6 +1,6 @@
 ---
 title:  'Probability Assignment'
-date: "December 2025"
+date: "December 7th 2025"
 author: Matthias Nijman - S4667999
 output:
   html_notebook: default
@@ -23,26 +23,50 @@ Write R code to answer all the questions related to the tips. You can get starte
 
 Let us first load the dataset and the libraries we will use:
 You can add your R code between the triple quotations!!!
-  ```{r eval=FALSE, include=TRUE}
-  library(dplyr)
-  library(ggplot2)
-  library(reshape2)
-  data("tips",package='reshape2')
-  as.data.frame(tips)
-  ```
+```{r eval=FALSE, include=TRUE}
+library(dplyr)
+library(ggplot2)
+library(reshape2)
+data("tips",package='reshape2')
+as.data.frame(tips)
+```
 
-a. Find the number of people who visited the restaurant.
-b. Create a column called tip\_rate that would show the proportion of the tip to the bill and add it to the dataframe. 
-c. If you were to work at this restaurant, which shift on which day would you prefer? Support your response with a plot. 
-Hint: Your motivation for doing this job until you are hired by a big tech company is making money.
-d. What is the probability that there will be a group of size 6 on sunday for dinner?
+### a. Find the number of people who visited the restaurant.
+```{r}
+tips %>%
+summarise(parties = n(), people = sum(size))
+```
+The number of people that visited the restaurant is 627, made up of 244 different groups.
+
+### b. Create a column called tip\_rate that would show the proportion of the tip to the bill and add it to the dataframe.
+```{r}
+tips <- tips %>%
+mutate(tip_rate = round((tip/total_bill), digits=2))
+head(tips)
+```
+The tip\_rate column now shows the proportion of tip/bill rounded to two digits.
+
+### c. If you were to work at this restaurant, which shift on which day would you prefer? Support your response with a plot. *Hint: Your motivation for doing this job until you are hired by a big tech company is making money.*
+```{r}
+by_day <- group_by(tips, day)
+summarise(by_day, avg_tip = mean(tip)) %>% arrange(desc(avg_tip))
+summarise(by_day, avg_tip_rate = mean(tip_rate)) %>% arrange(desc(avg_tip_rate))
+```
+Assuming I get to keep all the tips, I would pick Sunday as my preferred day of work. The average tip rate is right behind that of Friday, with a difference of 0.0025. The actual average tip is the highest on Sunday, \$0.26 more than Saturday (second place), and \$0.52 more than Friday, which ranks last.
+
+
+### d. What is the probability that there will be a group of size 6 on sunday for dinner?
+```{r}
+prop.table(table(tips$size, tips$day, tips$time))
+```
+From the prop table we can read that the probability of a group of six coming in for dinner on a Sunday is 0.004098361.
 
 # Question 2
 You are playing a dice game using two six-sided dice. The dice are not fair, but for simplicity, assume that both dice have the same bias. The probability of each side appearing on a single die is:  
     
-    | Side | 1    | 2    | 3    | 4    | 5    | 6    |
-    | ---- | ---- | ---- | ---- | ---- | ---- | ---- |
-    | Prob | 0.05 | 0.10 | 0.15 | 0.20 | 0.25 | 0.25 |
+| Side | 1    | 2    | 3    | 4    | 5    | 6    |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| Prob | 0.05 | 0.10 | 0.15 | 0.20 | 0.25 | 0.25 |
 
         
 The rules of the game are as follows: 
@@ -55,40 +79,154 @@ The rules of the game are as follows:
     - If only one player rolls a total of 7 or 11, that player wins immediately.  
     - If only one player’s total exceeds 11, the other player wins.  
     - If none of the above occurs, the game continues to the next round.  
+
+Probabilities, fair coin toss -> unfair die roll:\
+- $P(H) = 0.5$ Toss head, you start \
+- $P(T) = 0.5$ Toss tails, dealer starts \
+- $P(\epsilon_1)  = 0.05$ Roll 1 \
+- $P(\epsilon_2)  = 0.10$ Roll 2 \
+- $P(\epsilon_3)  = 0.15$ Roll 3 \
+- $P(\epsilon_4)  = 0.20$ Roll 4 \
+- $P(\epsilon_5)  = 0.25$ Roll 5 \
+- $P(\epsilon_6)  = 0.25$ Roll 6 \
             
-            
-a. Calculate the probability mass function of the discrete random variable $T$ representing the total of the dice. 
+### a. Calculate the probability mass function of the discrete random variable $T$ representing the total of the dice.
+The PMF of rolling two of the described dice:
 
-b. At the end of the first round, what is the probability that:  
+| i/j   | 1     | 2     | 3     | 4     | 5     | 6     | P(X=i)|
+| :---- | :---- | :---- | :---- | :---- | :---- | :---- | :---- |
+| 1     | 0.0025| 0.005 | 0.0075| 0.01  | 0.0125| 0.0125| 0.05  |
+| 2     | 0.005 | 0.01  | 0.015 | 0.02  | 0.025 | 0.025 | 0.10  |
+| 3     | 0.0075| 0.015 | 0.0225| 0.03  | 0.0375| 0.0375| 0.15  |
+| 4     | 0.01  | 0.02  | 0.03  | 0.04  | 0.05  | 0.05  | 0.20  |
+| 5     | 0.0125| 0.025 | 0.0375| 0.05  | 0.0625| 0.0625| 0.25  |
+| 6     | 0.0125| 0.025 | 0.0375| 0.05  | 0.0625| 0.0625| 0.25  |
+| P(X=j)| 0.05  | 0.10  | 0.15  | 0.20  | 0.25  | 0.25  | 1     |
 
-    i. The game ends in a tie?  
-    ii. You win immediately?
-    iii. The game continues to the next round?  
+The PMF of $T$:
+
+| i/j   | 2     | 3     | 4     | 5     | 6     | 7     | 8     | 9     | 10    | 11    | 12    |
+| :---- | :---- | :---- | :---- | :---- | :---- | :---- | :---- | :---- | :---- | :---- | :---- |
+| P(T=x)| 0.0025| 0.01  | 0.025 | 0.05  | 0.0875| 0.135 | 0.165 | 0.175 | 0.1625| 0.125 | 0.0625|
+
+### b. At the end of the first round, what is the probability that *(Make sure that you clearly explain the assumptions you are making to calculate these probabilities.)*:  
+
+#### i. The game ends in a tie?
+We will define $T_m$ as my total and $T_d$ as the dealers total.
+The game ends in a tie if both players have the same total. So the probability that the game ends in a tie at the end of the first round  can be defined as $P(T_m = T_d)$. For every x we can say that $P(T_m = x)=P(T_d = x)=P(T = x)$, since our dice have the same odds.
+The probability of both throwing the same x is then defined as $P(T_m = x)P(T_d = x)=P(T = x)^2$.
+So we can define the probability that the game ends in a tie at the end of the first round as: 
+$P(T_m = T_d)=P(T = 2)^2+P(T = 3)^2+P(T = 4)^2+P(T = 5)^2+P(T = 6)^2+P(T = 7)^2+P(T = 8)^2+$$P(T = 9)^2+P(T = 10)^2+P(T = 11)^2+P(T = 12)^2 =$
+$0.0025^2+0.01^2+0.025^2+0.05^2+0.0875^2+0.135^2+0.165^2+0.175^2+0.1625^2+0.125^2+0.0625^2 = 0.1329$
+```{r}
+(0.0025)^2 + (0.01)^2 + (0.025)^2 + (0.05)^2 + (0.0875)^2 + (0.135)^2 + (0.165)^2 + (0.175)^2 + (0.1625)^2 + (0.125)^2 + (0.0625)^2
+```
+At the end of the first round, the probability that the game ends in a tie is $0.1329$.
+
+#### ii. You win immediately?
+With immediately I assume within the first round.
+In order to win we can either start and roll 7 or 11. Or roll 7 or 11 after the dealer did not. Or the dealer rolls 12.
+Lets call me starting $P(S_m)$ and me winning $W_m$.
+$P(W_m) = P(S_m)P(T_m=7\cup T_m=11) + P(S_d)P(T_d \neq 7 \cap T_d\neq 11)P(T_m=7\cup T_m=11) + P(T_d = 12)$.\
+$P(T_m=7\cup T_m=11) = P(T_m=7)+P(T_m=11) = 0.135 + 0.125 = 0.26$.\
+$P(S_m) = P(S_d) = 0.5$.\
+The probability of the dealer rolling anything but a 7 or an 11 is the intersection of not rolling 7 and not rolling 11, thus it is the union of all options apart from 7 or 11: 
+$P(T_d \neq 7 \cap T_d\neq 11) =$$P(T_d=2)+P(T_d=32)+P(T_d=4)+P(T_d=5)+P(T_d=6)+P(T_d=8)+P(T_d=9)+P(T_d=10)+P(T_d=12)=$
+$0.0025 + 0.01 + 0.025 + 0.05 + 0.0875 + 0.165 + 0.175 + 0.1625 + 0.0625 = 0.74$
+```{r}
+0.0025 + 0.01 + 0.025 + 0.05 + 0.0875 + 0.165 + 0.175 + 0.1625 + 0.0625
+```
+$P(W_m) = P(S_m)P(T_m=7\cup T_m=11) + P(S_d)P(T_d \neq 7 \cap T_d\neq 11)P(T_m=7\cup T_m=11) + P(T_d = 12)=$
+$0.5\times 0.26 + 0.5\times 0.74 \times 0.26 + 0.0625$
+```{r}
+0.5*0.26 + 0.5*0.74*0.26 + 0.0625
+```
+At the end of the first round, the probability that I win immediately is $0.2887$.
+
+#### iii. The game continues to the next round?
+We know the probability of a tie $P(T_m = T_d)$, and the probability of me winning $P(W_m)$.
+We know the dealer as the same odds to win as me $P(W_m)=P(W_d)$.
+So the probability that the game continues $P(C) = 1 - (P(T_m = T_d)+P(W_m)+P(W_d)) = 1 - (0.1329 + 0.2887 + 0.2887) = 0.2897$
+```{r}
+1 - (0.1329 + 0.2887 + 0.2887)
+```
+At the end of the first round, the probability that the game continues to the next round is $0.2897$.
+
+### c. Eventually, what is the probability that *(Make sure that you clearly explain the assumptions you are making to calculate these probabilities.)*:
+
+#### i. The game ends in a tie?
+The probability that the game ends in a tie given that the game continued can be defined as $P(T_m = T_d|C)$.
+However, the odds remain the same every round. Therefore $P(T_m = T_d|C) = P(T_m = T_d) = 0.1329$
+
+The probability the game eventually ends in a tie is $0.1329$.
+
+#### ii. You win immediately?
+I am a bit unsure how to interpret 'immediately' here, however I will still assume I am meant to win within a round.
+The probability that I win the game given that the game continued can be defined as $P(W_m|C)$.
+However, the odds remain the same every round. Therefore $P(W_m|C) = P(W_m) = 0.2887$.
   
-    Make sure that you clearly explain the assumptions you are making to calculate these probabilities.
+The probability that I win immediately, eventually is $0.2887$.
+    
 
-c. Eventually, what is the probability that:
+### d. Is it possible that this game continues forever? Why? Explain.
+Technically yes. Every round is played with the same odds. You flip a coin then both players take turns rolling their dice. Every time this happens there is a probability of $0.2897$ that the game continues. This means there is no hard limit on how many rounds the game may go on for.
 
-    i. The game ends in a tie?  
-    ii. You win immediately?  
-  
-    Make sure that you clearly explain the assumptions you are making to calculate these probabilities.
+However, in reality the game will very likely end at some point, as the probability that we get an outcome that causes the game to continue another round every round, is nearing 0. We can run a few samples of the game and track how many rounds the game went on for to see that in reality, the game will end:
+```{r}
+dice_game <- function() {
+  outcome <- "C"
+  rounds <- 0
+  while(outcome == "C"){
+    rounds <- rounds +1
+    outcome <- sample(x=c("T","M","D","C"), size = 1, prob=c(0.1329, 0.2887, 0.2887, 0.2897))
+  }
+  return(rounds)
+}
 
-d. Is it possible that this game continues forever? Why? Explain.
+play_dice_game <- function(n) {
+  return(mean(replicate(n, dice_game())))
+}
 
-        
-Hint: You may use simulation to calculate the probabilities. Particulary, we highly recommend using R for the probability distribution of $T$.}
+set.seed(1)
+results <- sapply(1:1000, play_dice_game)
+plot(results, type='l', main="Play the dice game", xlab="Games played", ylab="Amount of rounds the game lasted")
+abline(h = 1.4, col = "blue", lwd=2)
+```
+We can see that on average the game lasts roughly 1.4 rounds, no where near infinity.
+
+*Hint: You may use simulation to calculate the probabilities. Particularly, we highly recommend using R for the probability distribution of $T$.*
 
 ## Question 3:
-A company has developed a ``Marten Car Alarm Detector'', designed to alert car owners when malicious stone martens are chewing on the cables of their vehicles. In northern Europe, there are $500{,}000$ stone martens, but only $500$ are estimated to tamper with cars. To test the product before launching it to the market, a car owner conducts trials:
+A company has developed a "Marten Car Alarm Detector", designed to alert car owners when malicious stone martens are chewing on the cables of their vehicles. In northern Europe, there are $500{,}000$ stone martens, but only $500$ are estimated to tamper with cars. To test the product before launching it to the market, a car owner conducts trials:
           
 * The alarm correctly detects a car-tampering marten $99\%$ of the time.
 * The alarm incorrectly triggers for a harmless marten $1\%$ of the time.
 
+Let's say that $A$ is the alarm going off and $M$ is a car tampering stone marten.
+I will also assume that $500{,}000$ martens go into cars (detected or undetected), otherwise I do not know how to calculate $P(M^c)$.
 
-a. If the alarm goes off, what is the probability that a stone marten is actually tampering with the car?
-b. Based on your calculations, would you, as a car owner, be confident in buying this alarm system?
-      
+### a. If the alarm goes off, what is the probability that a stone marten is actually tampering with the car?
+We want to know the probability of a tampering stone marten being in the car when the alarm goes off: $P(M|A)$.\
+$P(M) = \frac{500}{500000} = 0.001$\
+$P(M^c) = 1 - 0.001 = 0.999$\
+$P(A|M) = 0.99$ (TP rate)\
+$P(A|M^c) = 0.01$ (FP rate)\
+Using Bayes' formula we know that $P(M|A)=\frac{P(A|M)P(M)}{P(A)}$.\
+Using the total law of probabilities we know that $P(M|A)=\frac{P(A|M)P(M)}{P(A|M)P(M)+P(A|M^c)P(M^c)}$.\
+So $P(M|A)=\frac{0.99 \times 0.001}{0.99\times 0.001+0.01\times 0.999} = 0.09016393$
+```{r}
+(0.99*0.001) / (0.99*0.001+0.01*0.999)
+```
+The probability of a tampering stone marten being in the car when the alarm goes off is $0.09016393$.
+
+### b. Based on your calculations, would you, as a car owner, be confident in buying this alarm system?
+First of all I want to know how often the alarm fails to warn me for a tempering marten: $P(A^c|M) = 1-0.99 = 0.01$.
+So we have an alarm that fails to warn me about 1% of the time. On top of that,
+if it does warn me there is a ($P(M^c|A) = 1-0.09016393=0.90983607$) roughly 90% chance I'm being warned for a harmless marten.
+I don't think bullying 9 stone martens away from my car, for every 1 time that I'm saving some repair costs is worth buying this system for.
+So no, I would not be confident in buying this alarm system. Only someone who hates stone martens would.
+
+
 ## Question 4:
 A bubble tea cup is 15 cm tall. Because the tapioca pearls settle toward the bottom, the linear density of pearls (in pearls per cm of height) is given by
         \[f(h) = 50 - 2h, \qquad 0 \le h \le 15,\]
