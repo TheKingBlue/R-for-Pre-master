@@ -24,6 +24,8 @@ Write R code to answer all the questions related to the tips. You can get starte
 Let us first load the dataset and the libraries we will use:
 You can add your R code between the triple quotations!!!
 ```{r eval=FALSE, include=TRUE}
+library(tidyverse)
+library(MASS)
 library(dplyr)
 library(ggplot2)
 library(reshape2)
@@ -232,10 +234,32 @@ A bubble tea cup is 15 cm tall. Because the tapioca pearls settle toward the bot
         \[f(h) = 50 - 2h, \qquad 0 \le h \le 15,\]
         where $h$ is the height measured from the bottom of the cup.
 
-a. How many pearls are in the cup?
-b. Let $H$ be the continuous random variable of height of a randomly selected pearl. Find the probability density function of $H$.
-c. Find the cumulative distribution function of $H$.
-d. If a straw reaches down to a depth of 10 cm, what is the probability that the drinker swallows a pearl?
+### a. How many pearls are in the cup?
+We know that the density function is $\int_a^bf(t)dt$. In this case that would be $\int_0^{15}(50-2h)dh$ 0 for the bottom of the cup and 15 for the top.
+```{r}
+integrate(function(h)50-2*h, lower = 0, upper = 15)
+```
+There are 525 pearls in the cup.
+
+### b. Let $H$ be the continuous random variable of height of a randomly selected pearl. Find the probability density function of $H$.
+The PDF of $H$ is:
+\[f(H) = 
+\begin{cases}
+\text{$\frac{50-2h}{525}$}, & \text{if 0 $\leq H \leq$ 15},\\[6pt]
+0, & \text{otherwise}.
+\end{cases}
+\]
+
+### c. Find the cumulative distribution function of $H$.
+The CDF of $H$ is $P((0, H])$.
+
+### d. If a straw reaches down to a depth of 10 cm, what is the probability that the drinker swallows a pearl?
+A depth of 10 cm is the same as a height of $15-10=5 cm$. So $H=5$ in this case.
+$0\leq 5 \leq 15$ is true, so we can use $\frac{50-2H}{525}$. $\frac{50-2\times 5}{525} = \frac{40}{525} = \frac{8}{105}$.
+```{r}
+fractions(40/525)
+```
+The probability of swallowing a pearl at depth 10 cm, is $\frac{8}{105}$.
 
 ## Question 5:
 $X$ is the result of rolling a fair 4-sided die and $Y$ is defined as follows:
@@ -246,16 +270,105 @@ X, & \text{if $X$ is odd}.
 \end{cases}
 \]
 
-a. Verify that $X$ and $Y$ are not independent.
-b. Find $\mathbb{E}[XY]$. 
+### a. Verify that $X$ and $Y$ are not independent.
+For $X$ and $Y$ to be independent, $P(X = i, Y = j) = P(X = i)P(Y = j)$ must hold.
+We roll a fair 4-sided die (d4), the result is $X$, if it is odd $Y = X$.
+If it was even, we roll a fair 8-sided die (d8) and take the result as $Y$.
+$Y$ can be 1 or 3 by rolling it on the d4 or by rolling 2 or 4 on the d4 and then the 1 or the 3 on the d8.
+All the other 6 numbers can only be achieved by rolling 2 or 4 on the d4 and then rolling the number on the d8.
+Thus $P(1) = P(3) = \frac{1}{4} + \frac{2}{4} \times \frac{1}{8} = \frac{5}{16}$ and
+$P(2) = P(4) = P(5) = P(6) = P(7) = P(8) = \frac{2}{4} \times \frac{1}{8} = \frac{1}{16}$.
+In order to check independence we can create a PMF table:
+
+| i/j   | 1     | 2     | 3     | 4     | 5     | 6     | 7     | 8     | P(X=i)|
+| :---- | :---- | :---- | :---- | :---- | :---- | :---- | :---- | :---- | :---- |
+| 1     | 1/4   | 0     | 0     | 0     |  0    | 0     | 0     | 0     | 1/4   |
+| 2     | 1/32  | 1/32  | 1/32  | 1/32  | 1/32  | 1/32  | 1/32  | 1/32  | 1/4   |
+| 3     | 0     | 0     | 1/4   | 0     | 0     | 0     | 0     | 0     | 1/4   |
+| 4     | 1/32  | 1/32  | 1/32  | 1/32  | 1/32  | 1/32  | 1/32  | 1/32  | 1/4   |
+| P(Y=j)| 5/16  | 1/16  | 5/16  | 1/16  | 1/16  | 1/16  | 1/16  | 1/16  | 1     |
+We can see that $P(X = i, Y = j) = P(X = i)P(Y = j)$ will not hold. To prove it we can look at an example.
+$X = 1, Y = 2$ we can see from the table that $P(X = 1, Y = 2) = 0$ meanwhile $P(X = 1)P(Y = 2) = \frac{1}{4}\times \frac{1}{16} = \frac{1}{64}$.
+Since $0 \neq \frac{1}{64}$, $X$ and $Y$ are not independent.
+
+### b. Find $\mathbb{E}[XY]$. 
+Lets take $Z = XY$.
+\[
+Z(X, Y) =
+\begin{cases}
+1, & \text{if } X = 1, \ Y = 1, \\[6pt]
+2, & \text{if } X = 2, \ Y = 1, \\[6pt]
+4, & \text{if } X = 2, \ Y = 2 \text{ or } X = 4, \ Y = 1, \\[6pt]
+6, & \text{if } X = 2, \ Y = 3, \\[6pt]
+8, & \text{if } X = 2, \ Y = 4 \text{ or } X = 4, \ Y = 2, \\[6pt]
+9, & \text{if } X = 3, \ Y = 3, \\[6pt]
+10, & \text{if } X = 2, \ Y = 5, \\[6pt]
+12, & \text{if } X = 2, \ Y = 6 \text{ or } X = 4, \ Y = 3, \\[6pt]
+14, & \text{if } X = 2, \ Y = 7, \\[6pt]
+16, & \text{if } X = 2, \ Y = 8 \text{ or } X = 4, \ Y = 4, \\[6pt]
+20, & \text{if } X = 4, \ Y = 5, \\[6pt]
+24, & \text{if } X = 4, \ Y = 6, \\[6pt]
+28, & \text{if } X = 4, \ Y = 7, \\[6pt]
+32, & \text{if } X = 4, \ Y = 8.
+\end{cases}
+\]
+
+$\mathbb{E}[XY] = \mathbb{E}[Z] = (1)P(Z=1)+(2)P(Z=2)+(4)P(Z=4)+(6)P(Z=6)+(8)P(Z=8)+(9)P(Z=9)+(10)P(Z=10)+$
+$(12)P(Z=12)+(14)P(Z=14)+(16)P(Z=16)+(20)P(Z=20)+(24)P(Z=24)+(28)P(Z=28)+(32)P(Z=32)=$
+$(1)\frac{1}{4}+(2)\frac{1}{32}+(4)(2)\frac{1}{32}+(6)\frac{1}{32}+(8)(2)\frac{1}{32}+(9)\frac{1}{4}+(10)\frac{1}{32})+(12)(2)\frac{1}{32}+(14)\frac{1}{32}+(16)(2)\frac{1}{32}+(20)\frac{1}{32}+(24)\frac{1}{32}+$
+$(28)\frac{1}{32}+(32)\frac{1}{32}=9.25$
+```{r}
+(1+9)*(1/4) + (2+4+4+6+8+8+10+12+12+14+16+16+20+24+28+32)*((1/32))
+```
 
 ## Question 6:
 Let $W$ be the weight (in kg) of a person in a population, with mean 70 and standard deviation 15. Consider a random sample of $n$ people. Let $\bar{W}_n$ denote the sample mean weight.
 
-a. What is the distribution that approximates  $\bar{W}_n$? Give its parameters. Explain why?
-b. Using R, approximate the probability that the sample mean weight is between 75 kg and 80 kg for the following sample sizes:
-    i. $n = 100$
-    ii. $n = 1000$
-    iii. $n = 10000$
-c. Discuss how the probability changes as the sample size increases.
+### a. What is the distribution that approximates $\bar{W}_n$? Give its parameters. Explain why?
+The Poisson distribution approximates $\bar{W}_n$. It has parameter $\lambda > 0$ and $\lambda = Np$.
+The Poisson distribution approximates the Binomial distribution $\mathcal{P}(Np) \sim \mathcal{B}(Np)$ for large N and small p.
+Where $N$ is the number of trials and $p$ is their probability. The Binomial distribution is the actual distribution of $\bar{W}_n$.
+So if the Poisson distribution approximates the Binomial distribution, the Poisson distribution approximates $\bar{W}_n$.
 
+### b. Using R, approximate the probability that the sample mean weight is between 75 kg and 80 kg for the following sample sizes:
+#### i. $n = 100$
+```{r}
+set.seed(1)
+poisson_dist<- rpois(100,70)
+df <- data.frame("Poisson"=poisson_dist)
+df_long <- gather(data=df,key=distributions,value=mean,Poisson)
+ggplot(df_long,aes(x=mean,color=distributions)) + geom_histogram(position = "identity",alpha = 0.5,binwidth=1) +
+  geom_vline(xintercept = c(75, 80), linetype="dashed", color = "blue")
+sum(poisson_dist >= 75 & poisson_dist <= 80) / 100
+```
+The probability of the sample mean weight being between 75 and 80 for n=100 is $0.27$.
+
+#### ii. $n = 1000$
+```{r}
+set.seed(1)
+poisson_dist<- rpois(1000,70)
+df <- data.frame("Poisson"=poisson_dist)
+df_long <- gather(data=df,key=distributions,value=mean,Poisson)
+ggplot(df_long,aes(x=mean,color=distributions)) + geom_histogram(position = "identity",alpha = 0.5,binwidth=1) +
+  geom_vline(xintercept = c(75, 80), linetype="dashed", color = "blue")
+sum(poisson_dist >= 75 & poisson_dist <= 80) / 1000
+```
+The probability of the sample mean weight being between 75 and 80 for n=1000 is $0.176$.
+
+#### iii. $n = 10000$
+```{r}
+set.seed(1)
+poisson_dist<- rpois(10000,70)
+df <- data.frame("Poisson"=poisson_dist)
+df_long <- gather(data=df,key=distributions,value=mean,Poisson)
+ggplot(df_long,aes(x=mean,color=distributions)) + geom_histogram(position = "identity",alpha = 0.5,binwidth=1) +
+  geom_vline(xintercept = c(75, 80), linetype="dashed", color = "blue")
+sum(poisson_dist >= 75 & poisson_dist <= 80) / 10000
+```
+The probability of the sample mean weight being between 75 and 80 for n=10000 is $0.1829$.
+    
+### c. Discuss how the probability changes as the sample size increases.
+As stated before the Poisson distribution approximates the Binomial distribution $\mathcal{P}(Np) \sim \mathcal{B}(Np)$ for large N and small p.
+And the Binomial distribution is the actual distribution of $\bar{W}_n$.
+This means that as the sample size ($N$) grows, the approximated probability becomes closer to the actual probability, it becomes more accurate.
+Ideally we take $N = \infty$, but since this is not possible, it is best to take $N$ as large as possible, to make your approximation more accurate.
